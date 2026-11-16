@@ -17,7 +17,7 @@ docker compose exec -T app pytest -q
 1. 先查看000006与000030的暂停扣除。
 2. 在节假日历确认11月3日休息。
 3. 时效计算页筛选标本或科室，复核净分钟及上限。
-4. 查看异常隔离的CONFLICT与REVERSED证据。
+4. 查看异常隔离的AMENDED补正留痕与REVERSED拒收证据，并在项目契约页对照补正新旧值。
 5. 科室对账确认输入行数守恒，再在批次复核确认版本。
 
 SQLite使用records命名卷。`docker compose down`停止服务后数据保留；确认只需演示初始数据后可用 `docker compose down -v`删除本项目数据重新启动。数据字段定义见 `docs/DATA-DICTIONARY.md`，边界与测试映射见 `docs/DEPTH.md`。

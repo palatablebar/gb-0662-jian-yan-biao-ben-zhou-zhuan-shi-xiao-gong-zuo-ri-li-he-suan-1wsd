@@ -17,8 +17,12 @@ def test_timezone():
     assert instant('2026-11-02T09:00:00+08:00')==instant('2026-11-02T01:00:00Z')
 
 def test_conflict(dirty):
-    """TRAP-14"""
-    assert sum(i['code']=='CONFLICT' for i in dirty['contract']['issues'])==2
+    """TRAP-14: retransmitted amendments replace the old record instead of isolating the specimen."""
+    current=next(r for r in dirty['contract']['rows'] if r['specimen']=='000001')
+    assert current['released']=='2026-11-02T04:00:00+00:00';assert current['amended'];assert current['replaces_line']==2
+    assert all(i['code']!='CONFLICT' for i in dirty['contract']['issues'])
+    retired=next(i for i in dirty['contract']['issues'] if i['line']==2)
+    assert retired['code']=='AMENDED';assert retired['superseded_by']==45
 
 def test_version_overlap(clean):
     """TRAP-25"""

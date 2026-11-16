@@ -21,7 +21,7 @@
 | TRAP-07 | 时间哨兵 | 直接减时间或后写覆盖导致误判 | 按契约保留证据并确定性计算 | `app/modules/contract/service.py` | `tests/test_contract.py::test_missing_isolated` |
 | TRAP-08 | 标本前导零 | 直接减时间或后写覆盖导致误判 | 按契约保留证据并确定性计算 | `app/modules/contract/service.py` | `tests/test_contract.py::test_leading_zero` |
 | TRAP-11 | 偏移换算 | 直接减时间或后写覆盖导致误判 | 按契约保留证据并确定性计算 | `app/modules/contract/versions.py` | `tests/test_contract.py::test_timezone` |
-| TRAP-14 | 标本签发冲突 | 直接减时间或后写覆盖导致误判 | 按契约保留证据并确定性计算 | `app/modules/contract/service.py` | `tests/test_contract.py::test_conflict` |
+| TRAP-14 | 标本签发冲突（含仪器补传补正） | 直接减时间或后写覆盖导致误判，或把补正当冲突全部隔离 | 补传先校验后替换，补正行成为当前记录，旧版AMENDED留证，失败回滚旧版，同内容重试幂等 | `app/modules/contract/service.py` | `tests/test_contract.py::test_conflict` `tests/test_amendment.py` |
 | TRAP-18 | 三种空态 | 直接减时间或后写覆盖导致误判 | 按契约保留证据并确定性计算 | `app/modules/intake/reader.py` | `tests/test_intake.py::test_empty_tristate` |
 | TRAP-23 | 区间端点 | 直接减时间或后写覆盖导致误判 | 按契约保留证据并确定性计算 | `app/modules/model/calendar.py` | `tests/test_model.py::test_half_open_intersection` |
 | TRAP-25 | 项目版本重叠 | 直接减时间或后写覆盖导致误判 | 按契约保留证据并确定性计算 | `app/modules/contract/versions.py` | `tests/test_contract.py::test_version_overlap` |
@@ -31,7 +31,7 @@
 输入=有效时效+隔离+空行。有效时效=达标+超时，各科室合计必须回到有效数；P50/P95采用最近秩。
 
 ## 恢复与不变量
-同内容、项目版本、日历、暂停与宽限参数的摘要构成批次键；幂等重跑不追加。SQLite事务保存完整计算结果，失败不落半批。复核使用版本乐观锁。每个业务模块可独立以样例运行。暂停先求并集，再与工作段交集；不因重复批准扣两次。
+同内容、项目版本、日历、暂停与宽限参数的摘要构成批次键；幂等重跑不追加。SQLite事务保存完整计算结果，失败不落半批。复核使用版本乐观锁。每个业务模块可独立以样例运行。暂停先求并集，再与工作段交集；不因重复批准扣两次。补正按物理行序串行处理：同一标本始终只有一条当前可计算记录，补正通过才替换并保留旧版来源（AMENDED），补正失败恢复旧版且补传行按错误码隔离，同一补正重试只记DUPLICATE；输入行数=有效+隔离+空行的守恒不因补正改变。
 
 ## 已知不覆盖
 日历固定Asia/Shanghai，不包含跨DST工作区。仅处理31天内已签发标本。无医院系统连接，不诊断医疗结果。

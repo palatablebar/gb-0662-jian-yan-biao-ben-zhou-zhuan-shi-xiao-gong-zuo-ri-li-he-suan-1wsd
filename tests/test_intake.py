@@ -5,7 +5,7 @@ from app.errors import RuleError
 
 def test_bom_header():
     """TRAP-02"""
-    r=read(sample_bytes());assert r['rows'][0]['specimen']=='000001';assert r['input']==51
+    r=read(sample_bytes());assert r['rows'][0]['specimen']=='000001';assert r['input']==55
 
 def test_gb18030():
     """TRAP-01"""
@@ -13,6 +13,7 @@ def test_gb18030():
 
 def test_column_evidence(dirty):
     assert dirty['intake']['issues'][0]['code']=='COLUMN_COUNT';assert dirty['intake']['issues'][0]['line']==51
+
 
 def test_blank_counts(dirty):
     assert dirty['intake']['blank']==1;assert dirty['intake']['state']=='READY'
